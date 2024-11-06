@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('https://cdn.analyticsvidhya.com/wp-content/uploads/2021/06/59873wp7461591-fake-news-wallpapers.png'); /* Background Image */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Darker semi-transparent background */
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transform: translateX(30px); /* Moves container a bit to the right */
+        }
+
+        h1 {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 36px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 12px;
+            font-size: 16px;
+            margin: 20px 0;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #7B0000; /* More vibrant color */
+            color: #ffffff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #E03E1B; /* Hover effect */
+        }
+
+        .result {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 25px;
+        }
+
+        .result.real {
+            color: #4CAF50; /* Green for real news */
+        }
+
+        .result.fake {
+            color: #F44336; /* Red for fake news */
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #cccccc;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fake News Detection</h1>
+        <textarea id="news-input" placeholder="Enter the news statement..."></textarea><br>
+        <button onclick="checkNews()">Check News</button>
+        <div id="result" class="result"></div>
+        <footer>
+            <p>&copy; 2024 <a href="https://your-website-link.com">Fake News Detection</a>. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        function checkNews() {
+            let newsInput = document.getElementById('news-input').value;
+            let resultDiv = document.getElementById('result');
+
+            if (newsInput.trim() === "") {
+                resultDiv.textContent = "Please enter a news statement.";
+                resultDiv.style.color = "red";
+                return;
+            }
+
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'news': newsInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result) {
+                    resultDiv.textContent = `Prediction: ${data.result}`;
+                    resultDiv.className = `result ${data.result.toLowerCase().replace(' ', '-')}`;
+                } else {
+                    resultDiv.textContent = "Error: Unable to process the request.";
+                    resultDiv.style.color = "red";
+                }
+            })
+            .catch(error => {
+                resultDiv.textContent = "Error: Unable to connect to the server.";
+                resultDiv.style.color = "red";
+            });
+        }
+    </script>
+</body>
+</html>
